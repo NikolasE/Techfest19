@@ -19,7 +19,7 @@ void setup() {
   strip.ClearTo(black);
   strip.Show();
 
-  Serial.begin(115200);
+  Serial.begin(1000000);
 }
 
 uint32_t next_update = 0;
