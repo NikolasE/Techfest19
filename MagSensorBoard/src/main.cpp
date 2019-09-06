@@ -3,7 +3,7 @@
 
 Tle5012b Tle5012MagneticAngleSensor = Tle5012b();
 
-errorTypes checkError = NO_ERROR;
+const char SEP = ':';
 
 void setup() {
   while(!Serial)
@@ -16,17 +16,17 @@ void loop() {
   double d = 0.0;
   int16_t b = 0;
 
-  checkError = Tle5012MagneticAngleSensor.getAngleSpeed(d);
+  Tle5012MagneticAngleSensor.getAngleSpeed(d);
   Serial.print(d);
-  Serial.print("\t");
+  Serial.print(SEP);
 
-  checkError = Tle5012MagneticAngleSensor.getAngleValue(d);
+  Tle5012MagneticAngleSensor.getAngleValue(d);
   Serial.print(d);
-  Serial.print("\t");
+  Serial.print(SEP);
 
-  checkError = Tle5012MagneticAngleSensor.getNumRevolutions(b);
+  Tle5012MagneticAngleSensor.getNumRevolutions(b);
   Serial.print(b);
-  Serial.print("\n");
+  Serial.print('\n');
 
-  delay(50);
+  delay(10);
 }
