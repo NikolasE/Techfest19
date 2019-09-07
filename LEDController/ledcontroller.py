@@ -23,6 +23,8 @@ class LedController():
         self._bytes = np.zeros(num_leds*4)
 
     def set_led(self, number, color):
+        assert len(color) == 4
+
         """Sets as specific led to the given color; color is a 4-tuple (R,G,B,W)"""
         cmd = struct.pack('>hBBBB', number,
                           color[0], color[1], color[2], color[3])
@@ -41,9 +43,8 @@ class LedController():
 if __name__ == '__main__':
     num_leds = 60 * 4
     ledController = LedController(num_leds=num_leds)
-    cmd = b''
     for i in range(0, num_leds):
-        ledController.set_led(cmd, i, (0, 0, 255, 0))
+        ledController.set_led(i, (0, 0, 255, 0))
 
     import IPython
     IPython.embed()
