@@ -31,7 +31,7 @@ const RgbwColor COLOR_OFF(0, 0, 0, 0);
 
 NeoPixelBus<NeoGrbwFeature, Neo800KbpsMethod> strip(LED_COUNT, LED_PIN);
 
-const double VEL_DECAY_PERIOD = 0.01;  // brightness lost per ms
+const double VEL_DECAY_PERIOD = 0.005;  // brightness lost per ms
 
 uint8_t serial_buf[100];
 uint8_t serial_buf_len = 0;
@@ -40,6 +40,11 @@ void setup() {
   strip.Begin();
 
   Serial.begin(1000000);
+}
+
+double map(double x, double in_min, double in_max, double out_min,
+           double out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 void setPixel(uint16_t indexPixel, RgbwColor color) {
@@ -58,45 +63,62 @@ RgbwColor getPixel(uint16_t indexPixel) {
   }
 }
 
-uint8_t seat_setpoint = 255;
-uint8_t seat_val = 255;
-void setSeatLeds(uint8_t val) {
-  seat_val = val;
-  if (seat_val != 255) {
-    for (uint8_t i = 0; i < val; i++) {
-      setPixel(LED_OFFSET_UNDER_SEAT + i, COLOR_SEAT_BACK);
-      setPixel(LED_OFFSET_SEAT + i, COLOR_SEAT_BACK);
+void setGraph(uint8_t val, uint8_t setpoint, uint8_t led_index_offset) {
+  double dist_to_setpoint = fabs(val - setpoint);
+  for (uint8_t i = 0; i < STRIP_COUNT; i++) {
+    int8_t dist_to_center = abs(i - val);
+    double brightness = 0;
+    switch (dist_to_center) {
+      case 5:
+        brightness = 0.5 / 2.0 / 2.0 / 2.0 / 2.0 / 2.0;
+        break;
+      case 4:
+        brightness = 0.5 / 2.0 / 2.0 / 2.0 / 2.0;
+        break;
+      case 3:
+        brightness = 0.5 / 2.0 / 2.0 / 2.0;
+        break;
+      case 2:
+        brightness = 0.5 / 2.0 / 2.0;
+        break;
+      case 1:
+        brightness = 0.5 / 2.0;
+        break;
+      case 0:
+        brightness = 0.5;
+        break;
+      default:
+        brightness = 0.0;
+        break;
     }
-    for (uint8_t i = val; i < STRIP_COUNT; i++) {
-      setPixel(LED_OFFSET_UNDER_SEAT + i, COLOR_SEAT_FRONT);
-      setPixel(LED_OFFSET_SEAT + i, COLOR_SEAT_FRONT);
-    }
+    double hue = map(dist_to_setpoint, 10.0, 0.0, 0.0, 120.0 / 360.0);
+    hue = max(hue, 0.0);
+    hue = min(hue, 120.0 / 360.0);
+    HslColor color(hue, 1.0, brightness);
+    setPixel(led_index_offset + i, color);
   }
 
-  if (seat_setpoint != 255) {
-    setPixel(LED_OFFSET_SEAT + seat_setpoint, COLOR_SEAT_SETP);
-    setPixel(LED_OFFSET_UNDER_SEAT + seat_setpoint, COLOR_SEAT_SETP);
+  for (uint8_t i = 0; i < STRIP_COUNT; i++) {
+    RgbwColor color = getPixel(led_index_offset + i);
+    color.W = (i == setpoint) ? 0xFF : 0x00;
+    setPixel(led_index_offset + i, color);
   }
-
-  strip.Show();
 }
 
 uint8_t chain_setpoint = 255;
 uint8_t chain_val = 255;
 void setChainLeds(uint8_t val) {
   chain_val = val;
-  if (chain_val != 255) {
-    for (uint8_t i = 0; i < val; i++) {
-      setPixel(LED_OFFSET_CHAIN + i, COLOR_CHAIN_FRONT);
-    }
-    for (uint8_t i = val; i < STRIP_COUNT; i++) {
-      setPixel(LED_OFFSET_CHAIN + i, COLOR_CHAIN_BACK);
-    }
-  }
+  setGraph(val, chain_setpoint, LED_OFFSET_CHAIN);
+  strip.Show();
+}
 
-  if (chain_setpoint != 255) {
-    setPixel(LED_OFFSET_CHAIN + chain_setpoint, COLOR_CHAIN_SETP);
-  }
+uint8_t seat_setpoint = 255;
+uint8_t seat_val = 255;
+void setSeatLeds(uint8_t val) {
+  seat_val = val;
+  setGraph(val, seat_setpoint, LED_OFFSET_SEAT);
+  setGraph(val, seat_setpoint, LED_OFFSET_UNDER_SEAT);
   strip.Show();
 }
 
