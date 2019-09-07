@@ -4,12 +4,14 @@
 enum class cmd_t {
   CMD_RESET = 'r',
   CMD_SEAT = 's',
+  CMD_DIST = 'd',
   CMD_CHAIN = 'c',
   CMD_VEL = 'v',
   CMD_SETP_SEAT = 'S',
   CMD_SETP_CHAIN = 'C',
 };
 
+const bool REVERSE_LEDS = true;
 const uint8_t STRIP_COUNT = 60;
 const uint16_t LED_COUNT = STRIP_COUNT * 4;  // 60LED/m
 const uint16_t LED_PIN = 16;
@@ -40,24 +42,40 @@ void setup() {
   Serial.begin(1000000);
 }
 
+void setPixel(uint16_t indexPixel, RgbwColor color) {
+  if (REVERSE_LEDS) {
+    strip.SetPixelColor(LED_COUNT - indexPixel - 1, color);
+  } else {
+    strip.SetPixelColor(indexPixel, color);
+  }
+}
+
+RgbwColor getPixel(uint16_t indexPixel) {
+  if (REVERSE_LEDS) {
+    return strip.GetPixelColor(LED_COUNT - indexPixel - 1);
+  } else {
+    return strip.GetPixelColor(indexPixel);
+  }
+}
+
 uint8_t seat_setpoint = 255;
 uint8_t seat_val = 255;
 void setSeatLeds(uint8_t val) {
   seat_val = val;
   if (seat_val != 255) {
     for (uint8_t i = 0; i < val; i++) {
-      strip.SetPixelColor(LED_OFFSET_UNDER_SEAT + i, COLOR_SEAT_BACK);
-      strip.SetPixelColor(LED_OFFSET_SEAT + i, COLOR_SEAT_BACK);
+      setPixel(LED_OFFSET_UNDER_SEAT + i, COLOR_SEAT_BACK);
+      setPixel(LED_OFFSET_SEAT + i, COLOR_SEAT_BACK);
     }
     for (uint8_t i = val; i < STRIP_COUNT; i++) {
-      strip.SetPixelColor(LED_OFFSET_UNDER_SEAT + i, COLOR_SEAT_FRONT);
-      strip.SetPixelColor(LED_OFFSET_SEAT + i, COLOR_SEAT_FRONT);
+      setPixel(LED_OFFSET_UNDER_SEAT + i, COLOR_SEAT_FRONT);
+      setPixel(LED_OFFSET_SEAT + i, COLOR_SEAT_FRONT);
     }
   }
 
   if (seat_setpoint != 255) {
-    strip.SetPixelColor(LED_OFFSET_SEAT + seat_setpoint, COLOR_SEAT_SETP);
-    strip.SetPixelColor(LED_OFFSET_UNDER_SEAT + seat_setpoint, COLOR_SEAT_SETP);
+    setPixel(LED_OFFSET_SEAT + seat_setpoint, COLOR_SEAT_SETP);
+    setPixel(LED_OFFSET_UNDER_SEAT + seat_setpoint, COLOR_SEAT_SETP);
   }
 
   strip.Show();
@@ -69,15 +87,15 @@ void setChainLeds(uint8_t val) {
   chain_val = val;
   if (chain_val != 255) {
     for (uint8_t i = 0; i < val; i++) {
-      strip.SetPixelColor(LED_OFFSET_CHAIN + i, COLOR_CHAIN_FRONT);
+      setPixel(LED_OFFSET_CHAIN + i, COLOR_CHAIN_FRONT);
     }
     for (uint8_t i = val; i < STRIP_COUNT; i++) {
-      strip.SetPixelColor(LED_OFFSET_CHAIN + i, COLOR_CHAIN_BACK);
+      setPixel(LED_OFFSET_CHAIN + i, COLOR_CHAIN_BACK);
     }
   }
 
   if (chain_setpoint != 255) {
-    strip.SetPixelColor(LED_OFFSET_CHAIN + chain_setpoint, COLOR_CHAIN_SETP);
+    setPixel(LED_OFFSET_CHAIN + chain_setpoint, COLOR_CHAIN_SETP);
   }
   strip.Show();
 }
@@ -87,29 +105,43 @@ void clearLeds() {
   strip.Show();
 }
 
-uint32_t vel_last_update = 0;
-RgbwColor vel_color(0, 0, 0, 0);
-void setVelLeds(uint8_t val) {
-  vel_color.W = val;
-  for (uint8_t i = 0; i < STRIP_COUNT; i++) {
-    strip.SetPixelColor(LED_OFFSET_VEL + i, vel_color);
+void setDistLeds(uint8_t val) {
+  if (val != 255) {
+    for (uint8_t i = 0; i < val; i++) {
+      RgbwColor color = getPixel(LED_OFFSET_VEL + i);
+      color.B = 255;
+      setPixel(LED_OFFSET_VEL + i, color);
+    }
+    for (uint8_t i = val; i < STRIP_COUNT; i++) {
+      RgbwColor color = getPixel(LED_OFFSET_VEL + i);
+      color.B = 0;
+      setPixel(LED_OFFSET_VEL + i, color);
+    }
   }
-  vel_last_update = millis();
-
-  strip.Show();
 }
 
+uint32_t vel_last_update = 0;
+uint8_t vel_brightness = 0;
 void updateVelLeds() {
   uint32_t now = millis();
-  if (vel_color.W > 0) {
+  if (vel_brightness >= 0) {
     double new_bright =
-        vel_color.W - (now - vel_last_update) * VEL_DECAY_PERIOD;
-    vel_color.W = new_bright;
+        vel_brightness - (now - vel_last_update) * VEL_DECAY_PERIOD;
+    new_bright = max(new_bright, 0);
+    vel_brightness = new_bright;
     for (uint8_t i = 0; i < STRIP_COUNT; i++) {
-      strip.SetPixelColor(LED_OFFSET_VEL + i, vel_color);
+      RgbwColor color = getPixel(LED_OFFSET_VEL + i);
+      color.W = vel_brightness;
+      setPixel(LED_OFFSET_VEL + i, color);
     }
     strip.Show();
   }
+}
+
+void setVelLeds(uint8_t val) {
+  vel_last_update = millis();
+  vel_brightness = val;
+  updateVelLeds();
 }
 
 void onSerialReceive() {
@@ -122,6 +154,9 @@ void onSerialReceive() {
       break;
     case cmd_t::CMD_CHAIN:
       setChainLeds(serial_buf[1]);
+      break;
+    case cmd_t::CMD_DIST:
+      setDistLeds(serial_buf[1]);
       break;
     case cmd_t::CMD_VEL:
       setVelLeds(serial_buf[1]);

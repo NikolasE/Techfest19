@@ -11,6 +11,7 @@ class LedController():
     _CMD_SEAT = b's'
     _CMD_CHAIN = b'c'
     _CMD_VEL = b'v'
+    _CMD_DIST = b'd'
     _CMD_SETP_SEAT = b'S'
     _CMD_SETP_CHAIN = b'C'
 
@@ -62,10 +63,17 @@ class LedController():
         self._serial.write(cmd)
 
     def set_vel(self, val):
-        """set velocity led strip. value: 0-255"""
+        """set velocity led strip bright part. value: 0-255"""
         if val < 0 or val > 255:
             return
         cmd = self._CMD_VEL + struct.pack('B', val) + b'\n'
+        self._serial.write(cmd)
+
+    def set_dist(self, val):
+        """set velocity led strip blue part. value: 0-60"""
+        if val < 0 or val > 60:
+            return
+        cmd = self._CMD_DIST + struct.pack('B', val) + b'\n'
         self._serial.write(cmd)
 
 
