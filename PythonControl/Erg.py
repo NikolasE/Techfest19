@@ -18,6 +18,7 @@ class Erg():
         self._erg_thread = threading.Thread(
             target=self._run_thread, daemon=True)
         self._erg_dict = self._erg.get_monitor(forceplot=True)  # populate dict
+        self._start_dist = self._erg_dict['distance']
         self._erg_thread.start()
 
     def _run_thread(self):
@@ -34,7 +35,7 @@ class Erg():
             self.__last_stroke_state = stroke_state
 
     def get_distance(self):
-        return self._erg_dict['distance']
+        return self._erg_dict['distance'] - self._start_dist
 
     def get_current_stroke_complete_percent(self):
         current_stroke_elapsed_time = time.time() - self._stroke_dwelling_stamp
