@@ -1,0 +1,36 @@
+
+
+*******************************************************************************
+Sat Sep  7 20:01:38 2019
+
+
+FIT:    data read from 'rot.txt'
+        format = z
+        #datapoints = 5
+        residuals are weighted equally (unit weight)
+
+function used for fitting: f(x)
+	f(x) = m*x + c
+fitted parameters initialized with current variable values
+
+iter      chisq       delta/lim  lambda   m             c            
+   0 1.4654589000e+07   0.00e+00  1.25e+03    1.000000e+00   1.000000e+00
+   7 1.1887191130e-02  -1.45e-04  1.25e-04    2.462189e-02   2.914245e+01
+
+After 7 iterations the fit converged.
+final sum of squares of residuals : 0.0118872
+rel. change during last iteration : -1.45379e-09
+
+degrees of freedom    (FIT_NDF)                        : 3
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 0.0629476
+variance of residuals (reduced chisquare) = WSSR/ndf   : 0.0039624
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+m               = 0.0246219        +/- 2.014e-05    (0.08181%)
+c               = 29.1424          +/- 0.03571      (0.1225%)
+
+correlation matrix of the fit parameters:
+                m      c      
+m               1.000 
+c              -0.615  1.000 

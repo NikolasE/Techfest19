@@ -7,6 +7,9 @@ import threading
 from pyrow import pyrow
 from pyrow.pyrow import PyErg
 import json
+import numpy as np
+import cv2
+
 
 run_thread = True
 
@@ -15,15 +18,22 @@ all_data = list()
 cnt_rot = 0
 cnt_trans = 0
 cnt_erg = 0
+cnt_image = 0
 
 seq_name = input("name for sequence: ")
 print(seq_name)
+
+
+t = int(time())
+run_name = "%s_%i" % (seq_name, t)
+folder = '/tmp/%s/' % run_name
+os.mkdir(folder)
 
 def RotationThread():
     global cnt_rot
     name = '/dev/serial/by-id/usb-SEGGER_J-Link_000599005480-if00'
     ser = serial.Serial(name, baudrate=115200)
-
+    print(ser.is_open)
     while run_thread:
         data = ser.readline().strip()
         if data:
@@ -82,26 +92,36 @@ def ErgThread():
         all_data.append([now, msg])
         cnt_erg += 1
 
+def CameraThread():
+    global cnt_image
+    cap = cv2.VideoCapture(1)
+    while run_thread:
+        # Capture frame-by-frame
+        ret, frame = cap.read()
+        t = time()
+        img_path = folder + 'img_%f.png' % t
+        cnt_image += 1
 
-thread1 = threading.Thread(target=RotationThread)
-thread2 = threading.Thread(target=TranslationThread)
-thread3 = threading.Thread(target=ErgThread)
-
-thread1.start()
-thread2.start()
-thread3.start()
+        cv2.imwrite(img_path, frame)
 
 
-sleep(10)
+threads = list()
+threads.append(threading.Thread(target=RotationThread))
+threads.append(threading.Thread(target=TranslationThread))
+threads.append(threading.Thread(target=ErgThread))
+threads.append(threading.Thread(target=CameraThread))
+
+for t in threads:
+    t.start()
+
+sleep(20)
 run_thread = False
 
-print("Rot: %i, Trans: %i, Erg: %i" % (cnt_rot, cnt_trans, cnt_erg))
+print("Rot: %i, Trans: %i, Erg: %i, Images: %i" % (cnt_rot, cnt_trans, cnt_erg, cnt_image))
 
 all_data = sorted(all_data, key=lambda d: d[0])
 
-t = int(time())
-folder = '/tmp/%s_%i/' % (seq_name, t)
-os.mkdir(folder)
+
 
 print("Writing to %s" % folder)
 
@@ -109,7 +129,7 @@ f_r = open(folder + 'rotation.txt', 'w')
 f_t = open(folder + 'translation.txt' , 'w')
 f_e = open(folder + 'ergo.txt', 'w')
 
-f_merge = open(folder + 'all.txt', 'w')
+f_merge = open(folder + 'all_%s.txt' % run_name, 'w')
 
 for m in all_data:
     msg = m[1]
@@ -120,8 +140,8 @@ for m in all_data:
         f_t.write(msg + '\n')
     if msg[0] == 'E':
         f_e.write(msg + '\n')
+    f_merge.write(msg+'\n')
 
 f_r.close()
 f_t.close()
 f_e.close()
-f_merge.write(msg+'\n')
