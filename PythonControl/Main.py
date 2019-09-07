@@ -44,7 +44,7 @@ videoControl = VideoControl()
 optimal_dataframe = pickle.load(open("../analytics/goal_stroke", "rb"))
 
 workout_start = time.time()
-dist_per_time_needed = 10000 / 3600
+dist_per_time_needed = 3000 / 3600
 
 last_seat_led = 0
 last_chain_led = 0
@@ -80,14 +80,14 @@ while True:
     # erg distance
     dist = erg.get_distance()
     dist_expected = (time.time() - workout_start) * dist_per_time_needed
-    # print(dist, dist_expected)
     dist_leds = round(valmap(dist - dist_expected, 0, 10, 0, 60))
     if last_dist_leds != dist_leds:
+        print(dist, dist_expected)
         lc.set_dist(dist_leds)
         if dist_leds == 10 and last_dist_leds < dist_leds:
             videoControl.send_play()
         elif dist_leds == 10 and last_dist_leds > dist_leds:
-            videoControl.send_stop()
+            videoControl.send_pause()
         last_dist_leds = dist_leds
 
     # show setpoints
