@@ -9,7 +9,7 @@ enum class cmd_t {
 const uint8_t STRIP_COUNT = 50;
 const uint16_t LED_COUNT = STRIP_COUNT * 2;  // 60LED/m
 const uint16_t LED_PIN = 2;
-const float LED_BRIGHTNESS = 0.25;
+const float LED_BRIGHTNESS = 0.05; // max 0.5
 
 const RgbColor COLOR_OFF(0, 0, 0);
 
