@@ -15,17 +15,16 @@ import time
 
 
 def valmap(ivalue, istart, istop, ostart, ostop):
-        """
-        map a value from one input range to output range, like the Arduino map function
-        :param ivalue: input value to map
-        :param istart: input from
-        :param istop: input to
-        :param ostart: output from
-        :param ostop:  output to
-        :return: mapped input
-        """
-        return ostart + (ostop - ostart) * ((ivalue - istart) / (istop - istart))
-
+    """
+    map a value from one input range to output range, like the Arduino map function
+    :param ivalue: input value to map
+    :param istart: input from
+    :param istop: input to
+    :param ostart: output from
+    :param ostop:  output to
+    :return: mapped input
+    """
+    return ostart + (ostop - ostart) * ((ivalue - istart) / (istop - istart))
 
 
 rotation = Rotation()
@@ -39,6 +38,7 @@ mm2led = 1000 / 60.0
 last_seat_led = 0
 last_chain_led = 0
 last_speed_led = 0
+last_speed = 0
 while True:
     mm = seat.get_mm()
     current_led = int(mm / mm2led)
@@ -53,9 +53,12 @@ while True:
         last_chain_led = chain_led
 
     speed = rotation.get_speed()
+    if speed < 0:
+        last_speed = 0
     speed_led = round(valmap(speed, 0, 80000, 0, 255))
-    if speed > 0 and last_speed_led != speed_led:
+    if speed > last_speed and speed > 0 and last_speed_led != speed_led:
         lc.set_vel(speed_led)
         last_speed_led = speed_led
+        last_speed = speed
 
     time.sleep(0.05)
