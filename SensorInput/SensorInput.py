@@ -4,12 +4,17 @@ import serial
 import os
 from time import sleep, time
 import threading
+from pyrow import pyrow
+from pyrow.pyrow import PyErg
+import json
+
 run_thread = True
 
 all_data = list()
 
 cnt_rot = 0
 cnt_trans = 0
+cnt_erg = 0
 
 seq_name = input("name for sequence: ")
 print(seq_name)
@@ -64,18 +69,33 @@ def TranslationThread():
             all_data.append([now, msg])
             cnt_trans +=1
 
+def ErgThread():
+    global cnt_erg
+    ergs = list(pyrow.find())
 
-thread1 = threading.Thread(target = RotationThread)
-thread2 = threading.Thread(target = TranslationThread)
-#
+    erg = PyErg(ergs[0])
+
+    while run_thread:
+        erg_dict = erg.get_monitor(forceplot=True)
+        now = time()
+        msg = "E, %f, %s" % (now, json.dumps(erg_dict))
+        all_data.append([now, msg])
+        cnt_erg += 1
+
+
+thread1 = threading.Thread(target=RotationThread)
+thread2 = threading.Thread(target=TranslationThread)
+thread3 = threading.Thread(target=ErgThread)
+
 thread1.start()
 thread2.start()
-#
-# # while True:
+thread3.start()
+
+
 sleep(10)
 run_thread = False
 
-print("Rot: %i, Trans: %i" % (cnt_rot, cnt_trans))
+print("Rot: %i, Trans: %i, Erg: %i" % (cnt_rot, cnt_trans, cnt_erg))
 
 all_data = sorted(all_data, key=lambda d: d[0])
 
@@ -87,6 +107,8 @@ print("Writing to %s" % folder)
 
 f_r = open(folder + 'rotation.txt', 'w')
 f_t = open(folder + 'translation.txt' , 'w')
+f_e = open(folder + 'ergo.txt', 'w')
+
 f_merge = open(folder + 'all.txt', 'w')
 
 for m in all_data:
@@ -96,7 +118,10 @@ for m in all_data:
         f_r.write(msg+'\n')
     if msg[0] == 'T':
         f_t.write(msg + '\n')
+    if msg[0] == 'E':
+        f_e.write(msg + '\n')
 
 f_r.close()
 f_t.close()
+f_e.close()
 f_merge.write(msg+'\n')
