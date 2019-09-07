@@ -77,10 +77,15 @@ while True:
     # erg distance
     dist = erg.get_distance()
     dist_expected = (time.time() - workout_start) * dist_per_time_needed
-    print(dist, dist_expected)
+    # print(dist, dist_expected)
     dist_leds = round(valmap(dist - dist_expected, 0, 10, 0, 60))
     if last_dist_leds != dist_leds:
         lc.set_dist(dist_leds)
         last_dist_leds = dist_leds
 
+    # show setpoints
+    percent_complete = erg.get_current_stroke_complete_percent()
+    # print(percent_complete, '%, ', erg._stroke_period, 's')
+
     time.sleep(0.05)
+
