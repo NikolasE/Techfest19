@@ -2,3 +2,5 @@
 *cache*
 *.dat
 *.xml
+.vscode
+
