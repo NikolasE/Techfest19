@@ -2,11 +2,18 @@
 # *-*- coding: utf-8 -*-
 
 import serial
-import numpy as np
 import struct
 
 
 class LedController():
+
+    _CMD_RESET = b'r'
+    _CMD_SEAT = b's'
+    _CMD_CHAIN = b'c'
+    _CMD_VEL = b'v'
+    _CMD_SETP_SEAT = b'S'
+    _CMD_SETP_CHAIN = b'C'
+
     def __init__(self, serial_port='/dev/serial/by-id/usb-SparkFun_LEDController-if00', baud_rate=1000000, num_leds=60*4):
         """Connects to the microcontroller on a serial port.
         Args:
@@ -19,32 +26,42 @@ class LedController():
         self._serial = serial.Serial(port=serial_port, baudrate=baud_rate)
         if not self._serial.isOpen():
             raise RuntimeError("Couldn't open %s" % serial_port)
-        self._pixels = np.array([(0, 0, 0, 0)]*num_leds)
-        self._bytes = np.zeros(num_leds*4)
+        self.reset_leds()
 
-    def set_led(self, number, color):
-        assert len(color) == 4
+    def reset_leds(self):
+        """reset all leds to black/off"""
+        cmd = self._CMD_RESET + b'\n'
+        self._serial.write(cmd)
 
-        """Sets as specific led to the given color; color is a 4-tuple (R,G,B,W)"""
-        cmd = struct.pack('>hBBBB', number,
-                          color[0], color[1], color[2], color[3])
-        self._serial.write(cmd + b'\n')
+    def set_seat(self, val):
+        """set seat led strips. value: 0-60"""
+        cmd = self._CMD_SEAT + struct.pack('B', val) + b'\n'
+        self._serial.write(cmd)
 
-    # def prepare_led(self, cmd, number, color):
-    #     """Sets as specific led to the given color; color is a 4-tuple (R,G,B,W)"""
-    #     cmd += struct.pack('>hBBBB', number,
-    #                        color[0], color[1], color[2], color[3])
-    #     return cmd + b'\n'
+    def set_seat_setpoint(self, val):
+        """set seat setpoint led. value: 0-60"""
+        cmd = self._CMD_SETP_SEAT + struct.pack('B', val) + b'\n'
+        self._serial.write(cmd)
 
-    # def send_prepared(self, cmd):
-    #     self._serial.write(cmd)
+    def set_chain(self, val):
+        """set chain led strip. value: 0-60"""
+        cmd = self._CMD_CHAIN + struct.pack('B', val) + b'\n'
+        self._serial.write(cmd)
+
+    def set_chain_setpoint(self, val):
+        """set chain setpoint led. value: 0-60"""
+        cmd = self._CMD_SETP_CHAIN + struct.pack('B', val) + b'\n'
+        self._serial.write(cmd)
+
+    def set_vel(self, val):
+        """set velocity led strip. value: 0-255"""
+        cmd = self._CMD_VEL + struct.pack('B', val) + b'\n'
+        self._serial.write(cmd)
 
 
 if __name__ == '__main__':
     num_leds = 60 * 4
     ledController = LedController(num_leds=num_leds)
-    for i in range(0, num_leds):
-        ledController.set_led(i, (0, 0, 255, 0))
 
     import IPython
     IPython.embed()
