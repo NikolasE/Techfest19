@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # *-*- coding: utf-8 -*-
 
+import pandas
+import pickle
 import time
 from VideoControl import VideoControl
 from Erg import Erg
@@ -39,6 +41,8 @@ erg = Erg()
 
 videoControl = VideoControl()
 
+optimal_dataframe = pickle.load(open("../analytics/goal_stroke", "rb"))
+
 workout_start = time.time()
 dist_per_time_needed = 5000 / 3600
 
@@ -76,7 +80,7 @@ while True:
     # erg distance
     dist = erg.get_distance()
     dist_expected = (time.time() - workout_start) * dist_per_time_needed
-    # print(dist, dist_expected)
+    print(dist, dist_expected)
     dist_leds = round(valmap(dist - dist_expected, 0, 10, 0, 60))
     if last_dist_leds != dist_leds:
         lc.set_dist(dist_leds)
@@ -84,13 +88,19 @@ while True:
 
     # show setpoints
     percent_complete = erg.get_current_stroke_complete_percent()
-    # print(percent_complete, '%, ', erg._stroke_period, 's')
-    optimal_seat_mm = 500  # TODO
-    optimal_seat_led = round(valmap(optimal_seat_mm, 0, 1000, 0, 60))
+    print(percent_complete*100, '%, ', erg._stroke_period, 's')
+    max_index = len(optimal_dataframe['t_pos']) - 1
+    optimal_index = round(valmap(percent_complete, 0, 1, 0, max_index))
+    optimal_index = min(optimal_index, max_index)
+    optimal_index = max(optimal_index, 0)
+
+    optimal_seat_mm = optimal_dataframe['t_pos'][optimal_index]
+    optimal_seat_mm = 0.03 * optimal_seat_mm + 200  # mV to mm
+    optimal_seat_led = int(round(valmap(optimal_seat_mm, 0, 1000, 0, 60)))
     lc.set_seat_setpoint(optimal_seat_led)
-    optimal_chain_rotations = 5*360  # TODO
-    optimal_chain_led = round(
-        valmap(optimal_chain_rotations, 0, 15 * 360, 0, 60))
+    optimal_chain_rotations = optimal_dataframe['r_pos'][optimal_index]
+    optimal_chain_led = int(round(
+        valmap(optimal_chain_rotations, 0, 15 * 360, 0, 60)))
     lc.set_chain_setpoint(optimal_chain_led)
 
     time.sleep(0.05)
