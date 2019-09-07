@@ -31,7 +31,8 @@ const RgbwColor COLOR_OFF(0, 0, 0, 0);
 
 NeoPixelBus<NeoGrbwFeature, Neo800KbpsMethod> strip(LED_COUNT, LED_PIN);
 
-const double VEL_DECAY_PERIOD = 0.005;  // brightness lost per ms
+const double VEL_DECAY_PERIOD = 0.01;  // brightness lost per ms
+const double VEL_DECAY_FACTOR = 0.99;  // brightness factor
 
 uint8_t serial_buf[100];
 uint8_t serial_buf_len = 0;
@@ -143,17 +144,15 @@ void setDistLeds(uint8_t val) {
 }
 
 uint32_t vel_last_update = 0;
-uint8_t vel_brightness = 0;
+double vel_brightness = 0;
 void updateVelLeds() {
   uint32_t now = millis();
   if (vel_brightness >= 0) {
-    double new_bright =
-        vel_brightness - (now - vel_last_update) * VEL_DECAY_PERIOD;
-    new_bright = max(new_bright, 0);
-    vel_brightness = new_bright;
+    vel_brightness *=
+        pow(VEL_DECAY_FACTOR, (now - vel_last_update) * VEL_DECAY_PERIOD);
     for (uint8_t i = 0; i < STRIP_COUNT; i++) {
       RgbwColor color = getPixel(LED_OFFSET_VEL + i);
-      color.W = vel_brightness;
+      color.W = round(vel_brightness);
       setPixel(LED_OFFSET_VEL + i, color);
     }
     strip.Show();
