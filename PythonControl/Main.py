@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # *-*- coding: utf-8 -*-
 
+import time
+from VideoControl import VideoControl
+from Erg import Erg
+from Rotation import Rotation
+from Seat import Seat
+from LedController import LedController
 import os
 import sys
 import inspect
@@ -8,12 +14,6 @@ currentdir = os.path.dirname(os.path.abspath(
     inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
-from LedController import LedController
-from Seat import Seat
-from Rotation import Rotation
-from Erg import Erg
-from VideoControl import VideoControl
-import time
 
 
 def valmap(ivalue, istart, istop, ostart, ostop):
@@ -40,7 +40,7 @@ erg = Erg()
 videoControl = VideoControl()
 
 workout_start = time.time()
-dist_per_time_needed = 5000/3600
+dist_per_time_needed = 5000 / 3600
 
 last_seat_led = 0
 last_chain_led = 0
@@ -50,9 +50,8 @@ last_dist_leds = 0
 while True:
 
     # seat position
-    mm = seat.get_mm()
-    mm2led = 1000 / 60.0
-    current_led = int(mm / mm2led)
+    seat_mm = seat.get_mm()
+    current_led = round(valmap(seat_mm, 0, 1000, 0, 60))
     if last_seat_led != current_led:
         lc.set_seat(current_led)
         last_seat_led = current_led
@@ -86,6 +85,12 @@ while True:
     # show setpoints
     percent_complete = erg.get_current_stroke_complete_percent()
     # print(percent_complete, '%, ', erg._stroke_period, 's')
+    optimal_seat_mm = 500  # TODO
+    optimal_seat_led = round(valmap(optimal_seat_mm, 0, 1000, 0, 60))
+    lc.set_seat_setpoint(optimal_seat_led)
+    optimal_chain_rotations = 5*360  # TODO
+    optimal_chain_led = round(
+        valmap(optimal_chain_rotations, 0, 15 * 360, 0, 60))
+    lc.set_chain_setpoint(optimal_chain_led)
 
     time.sleep(0.05)
-
