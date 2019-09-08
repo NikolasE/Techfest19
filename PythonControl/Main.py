@@ -44,7 +44,7 @@ videoControl = VideoControl()
 optimal_dataframe = pickle.load(open("../analytics/goal_stroke", "rb"))
 
 workout_start = time.time()
-dist_per_time_needed = 3000 / 3600
+dist_per_time_needed = 6000 / 3600
 
 last_seat_led = 0
 last_chain_led = 0

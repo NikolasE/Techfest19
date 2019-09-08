@@ -8,8 +8,7 @@ from pyrow import pyrow
 from pyrow.pyrow import PyErg
 import json
 import numpy as np
-import cv2
-from PythonControl.VideoControl import VideoControl
+from VideoControl import VideoControl
 import os
 run_thread = True
 
@@ -260,15 +259,16 @@ def CameraThread():
 
 
 threads = list()
-threads.append(threading.Thread(target=RotationThread))
-threads.append(threading.Thread(target=TranslationThread))
-# threads.append(threading.Thread(target=ErgThread))
-# threads.append(threading.Thread(target=CameraThread))
+threads.append(threading.Thread(target=RotationThread, daemon=True))
+threads.append(threading.Thread(target=TranslationThread, daemon=True))
+# threads.append(threading.Thread(target=ErgThread, daemon=True))
+# threads.append(threading.Thread(target=CameraThread, daemon=True))
 #
 for t in threads:
     t.start()
 #
-sleep(40)
+while True:
+    sleep(40)
 run_thread = False
 #
 # print("Rot: %i, Trans: %i, Erg: %i, Images: %i" % (cnt_rot, cnt_trans, cnt_erg, cnt_image))

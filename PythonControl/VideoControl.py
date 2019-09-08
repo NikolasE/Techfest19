@@ -29,5 +29,5 @@ class VideoControl():
 
 if __name__ == '__main__':
     videoControl = VideoControl()
-    videoControl.send_playpause()
+    videoControl.send_pause()
     print("done")
