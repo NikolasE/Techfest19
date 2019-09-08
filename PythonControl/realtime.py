@@ -9,7 +9,7 @@ from pyrow.pyrow import PyErg
 import json
 import numpy as np
 import cv2
-
+from PythonControl.VideoControl import VideoControl
 import os
 run_thread = True
 
@@ -19,6 +19,10 @@ cnt_rot = 0
 cnt_trans = 0
 cnt_erg = 0
 cnt_image = 0
+
+do_beep = False
+
+vc = VideoControl()
 
 # seq_name = input("name for sequence: ")
 # print(seq_name)
@@ -31,9 +35,10 @@ cnt_image = 0
 
 min_gripper = 0
 current_gripper = 0
+gripper_front_pos = 0
 
 def RotationThread():
-    global cnt_rot, current_gripper, min_gripper
+    global cnt_rot, current_gripper, min_gripper, gripper_front_pos
     name = '/dev/serial/by-id/usb-SEGGER_J-Link_000599005480-if00'
     ser = serial.Serial(name, baudrate=115200)
     print(ser.is_open)
@@ -84,12 +89,15 @@ def RotationThread():
                 print ("XXXXXXXXXXXX MAXIMUM DETECTED at %i" % int(time()))
                 # print("%.2f < %.2f > %.2f" % (a, b, c))
                 min_gripper = c
-                os.system("beep -f 1000 -l 50")
+                if do_beep:
+                    os.system("beep -f 1000 -l 50")
 
             if a > b and b < c and abs(a - b) > 0.04:
                 print("000000000000000000 Minimum at %i: %.1f" % (int(time()), c))
                 # print("%.2f < %.2f > %.2f" % (a, b, c))
-                os.system("beep -f 1000 -l 50")
+                gripper_front_pos = c
+                if do_beep:
+                    os.system("beep -f 1000 -l 50")
 
             # print(a, b, c)
 
@@ -149,24 +157,36 @@ def TranslationThread():
 
                         gripper_dist = min_gripper - current_gripper
                         print("Gripper moved: %.1f (min: %.1f, current: %.1f" % (gripper_dist, min_gripper, current_gripper))
-                        if gripper_dist < 500:
-                            os.system("beep -f 20 -l 300")
-                                
+                        if min_gripper > 0 and gripper_dist < 500:
+                            # os.system("beep -f 20 -l 300")
+                            vc._say("Arms away")
                             # os.system("beep -f 200 -l 100")
                             # os.system("beep -f 100 -l 100")
-
-                        os.system("beep -f 900 -l 100")
+                        if do_beep:
+                            os.system("beep -f 900 -l 100")
                         back = False
                 else:
                     # Not yet stopped:
                     # print("front yet? %.2f" % v)
                     # print()
-                    if 0 > v > -0.2:
+                    if 0 > v > -0.5:
                         print("XXXXXXXXXXXXXXXXXXx BACKWARDS, STOPPING")
-                        os.system("beep -f 600 -l 100")
+                        if do_beep:
+                            os.system("beep -f 600 -l 100")
                         stop_pos = c
                         stop_stamp = time()
                         back = True
+
+
+            # shooting the slide:
+            if front_stop_pos > 0:
+                # we are on the way back:
+                if front_stop_pos - c > 20:
+                    gripper_travel = (current_gripper - gripper_front_pos)/10.0  # to cm
+                    print("00000000000000000000000000000000000000000000000000 Grpper travel: %i" % (int(gripper_travel)))
+                    front_stop_pos = 0
+                    if gripper_travel < 12:
+                        vc._say("slide!")
 
             if c > 50:
                 # print(v)
@@ -177,14 +197,16 @@ def TranslationThread():
                         front_stop = True
                         front_stop_pos = c
                         front_stop_stamp = time()
-                        os.system("beep -f 200 -l 100")
+                        if do_beep:
+                            os.system("beep -f 200 -l 100")
                 else:
                     # we stopped, waiting for moving back:
                     if c < front_stop_pos - 3:
                         dt = (time()-front_stop_stamp)*1000.0
                         print("Moving back after %.1f ms" % dt)
                         front_stop = False
-                        os.system("beep -f 700 -l 100")
+                        if do_beep:
+                            os.system("beep -f 700 -l 100")
 
 
                 #     if last_stamp and time()-last_stamp < 0.6:
