@@ -18,6 +18,10 @@ https://www.youtube.com/watch?v=Owztq-mSMeI
 Rowing with LED suit on  
 ![image](https://user-images.githubusercontent.com/11611719/64512710-45b0be00-d2e7-11e9-88f3-afdb6ef311c9.png)
 
+
+![image](https://github.com/NikolasE/Techfest19/blob/master/docu/data_vis.png)
+
+
 ## Running
 
 * Launch `PythonControl/Main.py` for LED and "Netflix" demo
