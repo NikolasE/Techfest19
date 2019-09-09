@@ -8,9 +8,11 @@ Presentation [Slides](https://docs.google.com/presentation/d/1Cj1SVs_LXiQ6w6Apk9
 
 ## Demo Videos
 Video play/pause based on rowing performance  
+<a href="https://www.youtube.com/watch?v=G4LVUWbew_E"><img src="https://user-images.githubusercontent.com/11611719/64515668-4b110700-d2ed-11e9-9f8d-0220777beaaa.jpg" height=300 /></a>  
 https://www.youtube.com/watch?v=G4LVUWbew_E
 
 LED feedback  
+<a href="https://www.youtube.com/watch?v=Owztq-mSMeI"><img src="https://user-images.githubusercontent.com/11611719/64516039-05087300-d2ee-11e9-9c60-1ea90fbd13f6.jpg" height=300/></a>  
 https://www.youtube.com/watch?v=Owztq-mSMeI
 
 Rowing with LED suit on  
