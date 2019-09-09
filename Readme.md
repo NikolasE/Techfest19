@@ -6,6 +6,10 @@ Presentation [Slides](https://docs.google.com/presentation/d/1Cj1SVs_LXiQ6w6Apk9
 
 ![20190908_003910_1](https://user-images.githubusercontent.com/11611719/64481326-7d7e0f80-d1da-11e9-8fdc-250e890439a7.gif)
 
+## Collected Data for seat and handle position
+![image](https://github.com/NikolasE/Techfest19/blob/master/docu/data_vis.png)
+
+
 ## Demo Videos
 Video play/pause based on rowing performance  
 <a href="https://www.youtube.com/watch?v=G4LVUWbew_E"><img src="https://user-images.githubusercontent.com/11611719/64515668-4b110700-d2ed-11e9-9f8d-0220777beaaa.jpg" height=300 /></a>  
@@ -17,10 +21,6 @@ https://www.youtube.com/watch?v=Owztq-mSMeI
 
 Rowing with LED suit on  
 ![image](https://user-images.githubusercontent.com/11611719/64512710-45b0be00-d2e7-11e9-88f3-afdb6ef311c9.png)
-
-
-![image](https://github.com/NikolasE/Techfest19/blob/master/docu/data_vis.png)
-
 
 ## Running
 
