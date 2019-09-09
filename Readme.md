@@ -1,4 +1,4 @@
-# Techfest 2019
+# Awesome Ergometer @ Techfest 2019
 
 Winner of Landeshauptstadt München / [Munich Maker Lab](https://munichmakerlab.de/)'s Wild Track at [Techfest 2019](https://techfestmunich.com/) Hackathon.
 
