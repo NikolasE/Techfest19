@@ -9,6 +9,9 @@ Presentation [Slides](https://docs.google.com/presentation/d/1Cj1SVs_LXiQ6w6Apk9
 ## Collected Data for seat and handle position
 ![image](https://github.com/NikolasE/Techfest19/blob/master/docu/data_vis.png)
 
+## Realtime visualization of raw data
+
+<a href="https://youtu.be/upLyXY_84M4">
 
 ## Demo Videos
 Video play/pause based on rowing performance  
