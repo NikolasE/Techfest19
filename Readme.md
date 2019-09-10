@@ -10,12 +10,15 @@ Presentation [Slides](https://docs.google.com/presentation/d/1Cj1SVs_LXiQ6w6Apk9
 
 ## Realtime visualization of raw data
 
-
 <a href="https://youtu.be/upLyXY_84M4"><img src="https://raw.githubusercontent.com/NikolasE/Techfest19/master/docu/realtime_good.png" height=300 /></a>  
 https://youtu.be/upLyXY_84M4
 
 <a href="https://www.youtube.com/watch?v=MBi2lxP6Yus"><img src="https://raw.githubusercontent.com/NikolasE/Techfest19/master/docu/realtime_bad.png" height=300 /></a>  
 https://www.youtube.com/watch?v=MBi2lxP6Yus
+
+### Processed data
+
+![image](https://raw.githubusercontent.com/NikolasE/Techfest19/master/docu/data_vis.png)
 
 ## Demo Videos
 Video play/pause based on rowing performance  
