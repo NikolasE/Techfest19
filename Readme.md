@@ -7,11 +7,15 @@ Presentation [Slides](https://docs.google.com/presentation/d/1Cj1SVs_LXiQ6w6Apk9
 ![20190908_003910_1](https://user-images.githubusercontent.com/11611719/64481326-7d7e0f80-d1da-11e9-8fdc-250e890439a7.gif)
 
 ## Collected Data for seat and handle position
-![image](https://github.com/NikolasE/Techfest19/blob/master/docu/data_vis.png)
 
 ## Realtime visualization of raw data
 
-<a href="https://youtu.be/upLyXY_84M4">
+
+<a href="https://youtu.be/upLyXY_84M4"><img src="https://raw.githubusercontent.com/NikolasE/Techfest19/master/docu/realtime_good.png" height=300 /></a>  
+https://youtu.be/upLyXY_84M4
+
+<a href="https://www.youtube.com/watch?v=MBi2lxP6Yus"><img src="https://raw.githubusercontent.com/NikolasE/Techfest19/master/docu/realtime_bad.png" height=300 /></a>  
+https://www.youtube.com/watch?v=MBi2lxP6Yus
 
 ## Demo Videos
 Video play/pause based on rowing performance  
