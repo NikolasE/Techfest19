@@ -12,6 +12,9 @@ ipython = "*"
 autopy = "*"
 pyrow = {editable = true,git = "https://github.com/droogmic/Py3Row.git"}
 pyserial = "*"
+pandas = "*"
+tk = "*"
+pyttsx3 = "*"
 
 [requires]
 python_version = "3.6"
